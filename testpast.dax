@@ -1,0 +1,8 @@
+EVALUATE
+    {"程式修復"}
+EVALUATE
+	ROW ("美國和法國訂單", COUNTROWS(FILTER(Sales,(Sales[Country]in{"USA","France"}))))
+EVALUATE
+	ADDCOLUMNS(Sales,"國家的中文",SWITCH(Sales[Country],"USA" ,"美國","France" ,"法國","其他"))
+EVALUATE
+	ADDCOLUMNS( Sales,"績效",SWITCH(true,Sales[Quantity]*Sales[Price per item]>200 ,"A+",Sales[Quantity]*Sales[Price per item]>100,"A","B"))
