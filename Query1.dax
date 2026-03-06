@@ -1,0 +1,47 @@
+﻿EVALUATE
+	var A = COUNTROWS(FILTER(Sales,AND(Sales[Country]="USA",Sales[Product category]="Bikes")))
+		RETURN
+        row("隸屬美國的訂單數量", A)
+        
+EVALUATE
+	VAR B = COUNTROWS(FILTER(Sales,Sales[Country]="USA"&&Sales[Product category]="Bikes"&&Sales[State]="California"))
+		RETURN ROW("加州訂單",B)
+EVALUATE
+	VAR C = COUNTROWS(FILTER(Sales,NOT(Sales[Country]="USA")))
+		RETURN
+		ROW("非美國訂單",C)
+EVALUATE
+	ROW ("美國和法國訂單", COUNTROWS(FILTER(Sales,(Sales[Country]in{"USA","France"}))))
+EVALUATE
+	ADDCOLUMNS(Sales,"國家的中文",SWITCH(Sales[Country],"USA" ,"美國","France" ,"法國","其他"))
+EVALUATE
+	ADDCOLUMNS( Sales,"績效",SWITCH(true,Sales[Quantity]*Sales[Price per item]>200 ,"A+",Sales[Quantity]*Sales[Price per item]>100,"A","B"))
+EVALUATE
+	VAR total=SUM(Sales[Sales fact])
+	VAR usa =SUMX(FILTER(Sales,Sales[Country]="USA"),Sales[Sales fact])
+	VAR GB = SUMX(FILTER(Sales,Sales[Country]="Great Britain"),Sales[Sales fact])
+	VAR GE = SUMX(FILTER(Sales,Sales[Country]="Germany"),Sales[Sales fact])
+	VAR FA = SUMX(FILTER(Sales,Sales[Country]="France"),Sales[Sales fact])
+	RETURN
+		ROW("4國全部",total,"美國",ROUND(usa/total,3)*100&"%","英國",ROUND(GB/total,3)*100&"%","德國",ROUND(GE/total,3)*100&"%","法國",ROUND(FA/total,3)*100&"%")
+EVALUATE
+	VAR total=SUM(Sales[Sales fact])
+	VAR usa =SUMX(FILTER(Sales,[Country]="USA"),[Price per item] * [Quantity])
+	VAR GB = SUMX(FILTER(Sales,[Country]="Great Britain"),[Price per item] * [Quantity])
+	VAR GE = SUMX(FILTER(Sales,[Country]="Germany"),[Price per item] * [Quantity])
+	VAR FA = SUMX(FILTER(Sales,[Country]="France"),[Price per item] * [Quantity])
+	RETURN
+	
+	ADDCOLUMNS(Sales,"國家%",SWITCH([COUNTRY],
+   		"USA",
+   			ROUND([Sales fact]/usa,5)*100 & "%",
+   		"FRANCE",
+   			ROUND([Sales fact]/FA,5)*100 & "%",	
+   		"GERMANY",
+   			ROUND([Sales fact]/GE,5)*100 & "%",
+		"GREAT BRITAIN",
+   			ROUND([Sales fact]/GB,5)*100 & "%",
+        "異常")
+       )
+	ORDER BY
+	[國家%] DESC
